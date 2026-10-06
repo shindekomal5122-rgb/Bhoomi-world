@@ -48,7 +48,7 @@ export default function Header() {
         </nav>
         <div className="header-actions">
           <Link to="/visit" className="btn btn-solid btn-sm visit-link">
-            Book a visit
+           Buy or Sell Land
           </Link>
           <button type="button" className="icon-btn" onClick={toggle} aria-label={`Switch to ${theme === "light" ? "dark" : "light"} theme`}>
             {theme === "light" ? <MoonIcon /> : <SunIcon />}
