@@ -1,112 +1,194 @@
 import { useEffect, useState } from "react"
-import { Link, useNavigate } from "react-router-dom"
-import ListingCard from "../components/ListingCard"
-import InquiryForm from "../components/InquiryForm"
-import { IntelIcon, ReasonIcon } from "../components/Icons"
-import {
-  checks,
-  fieldNotes,
-  insights,
-  intelligence,
-  landTypes,
-  listings,
-  project,
-  reasons,
-  regionNames,
-  regions,
-  steps,
-  stories,
-} from "../data"
+import { Link } from "react-router-dom"
 import useTitle from "../useTitle"
+import landJourney from "../assets/land-journey.jpg"
 
 export default function Home() {
   useTitle("")
+  const [shot, setShot] = useState(null)
+
+  useEffect(() => {
+    if (!shot) return undefined
+    const onKey = (event) => {
+      if (event.key === "Escape") setShot(null)
+    }
+    window.addEventListener("keydown", onKey)
+    document.body.style.overflow = "hidden"
+    return () => {
+      window.removeEventListener("keydown", onKey)
+      document.body.style.overflow = ""
+    }
+  }, [shot])
+
+  function onPageClick(event) {
+    const img = event.target.closest("img")
+    if (!img || img.closest(".hero-stage") || img.closest(".home-lightbox") || img.closest(".rwa-photo") || img.closest(".journey-photo") || img.closest(".gis-map")) return
+    event.preventDefault()
+    event.stopPropagation()
+    setShot({ src: img.currentSrc || img.src, alt: img.alt || "" })
+  }
 
   return (
-    <>
+    <div className="home-page" onClick={onPageClick}>
       <Hero />
       <Marketplace />
       <BhoomiServices />
       <Tokenisation />
-      <ParcelBoard />
-      <section className="section" id="listings">
-        <div className="wrap">
-          <SectionHead
-            kicker="Open parcels"
-            title="Land you can walk this month."
-            action={<Link to="/listings">All listings</Link>}
-          />
-          <div className="cards-3">
-            {listings.slice(0, 3).map((item) => (
-              <ListingCard key={item.id} item={item} />
-            ))}
-          </div>
-        </div>
-      </section>
-      <SearchPanel />
-      <FeaturedProject />
-      <Reasons />
-      <Gallery />
-      <Record />
+      <RwaOffer />
       <Process />
-      <Stories />
-      <Notes />
-      <NavyNote />
-      <Intelligence />
-      <InsightList />
-      <Close />
-    </>
+      <LandJourney />
+      <Videos />
+      <Landowner />
+      <Investors />
+      <BeginLand />
+      {shot && (
+        <div
+          className="home-lightbox"
+          role="dialog"
+          aria-modal="true"
+          aria-label={shot.alt || "Image preview"}
+          onClick={() => setShot(null)}
+        >
+          <img className="home-lightbox-shot" src={shot.src} alt={shot.alt} />
+        </div>
+      )}
+    </div>
   )
 }
 
+const heroSlides = [
+  {
+    href: "#tokenisation",
+    src: "/images/token-highway.jpg",
+    alt: "BhumiGlobal tokenisation platform. Land, value, prosperity. Physical land is verified, digitised, issued as a land token, and opened for global access.",
+    label: "Tokenisation",
+  },
+  {
+    href: "#tokenisation",
+    src: "/images/token-agriculture.jpg",
+    alt: "Deccan Terrace, Kanakapura, Karnataka",
+    label: "Hydroponics",
+  },
+  {
+    href: "#process",
+    src: "/images/pavilion.jpg",
+    alt: "Timber pavilion at Haven, Somwarpet, in evening light",
+    label: "What we do",
+  },
+]
+
 function Hero() {
+  const count = heroSlides.length
+  const reel = [...heroSlides, heroSlides[0]]
+  const [index, setIndex] = useState(0)
+  const [instant, setInstant] = useState(false)
+  const active = heroSlides[index % count]
+
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      setIndex((current) => (current >= count ? current : current + 1))
+    }, 4000)
+    return () => window.clearInterval(id)
+  }, [count])
+
+  useEffect(() => {
+    if (!instant) return undefined
+    const frame = window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => setInstant(false))
+    })
+    return () => window.cancelAnimationFrame(frame)
+  }, [instant])
+
+  function settleReel() {
+    if (index < count) return
+    setInstant(true)
+    setIndex(0)
+  }
+
+  function goTo(next) {
+    const wrapped = ((next % count) + count) % count
+    setIndex(wrapped)
+  }
+
   return (
     <section className="hero-stage">
-      <img
-        className="hero-stage-photo"
-        src="/images/aerial.jpg"
-        alt="Aerial farmland with parcel paths marked in green"
-      />
+      <div className="hero-carousel" aria-roledescription="carousel" aria-label="Highlight images">
+        <div
+          className={instant ? "hero-carousel-track is-instant" : "hero-carousel-track"}
+          style={{ transform: `translateX(-${index * 100}%)` }}
+          onTransitionEnd={settleReel}
+        >
+          {reel.map((slide, slideIndex) => (
+            <img
+              key={`${slide.src}-${slideIndex}`}
+              className="hero-stage-photo"
+              src={slide.src}
+              alt={slideIndex === index ? slide.alt : ""}
+              aria-hidden={slideIndex !== index}
+            />
+          ))}
+        </div>
+      </div>
       <div className="hero-stage-shade" />
       <div className="hero-glow hero-glow-a" aria-hidden="true" />
       <div className="hero-glow hero-glow-b" aria-hidden="true" />
       <div className="wrap hero-stage-inner">
-        <nav className="hero-picks hero-rise" aria-label="Highlights">
-          <a className="hero-pick" href="#tokenisation">
-            <img
-              src="/images/hero-platform.jpg"
-              alt="BhumiGlobal tokenisation platform. Land, value, prosperity. Physical land is verified, digitised, issued as a land token, and opened for global access."
-            />
-            <span>Tokenisation</span>
-          </a>
-          <a className="hero-pick" href="#hydroponics">
-            <img src="/images/hydroponics.png" alt="Deccan Terrace, Kanakapura, Karnataka" />
-            <span>Hydroponics</span>
-          </a>
-          <a className="hero-pick" href="#process">
-            <img src="/images/pavilion.jpg" alt="Timber pavilion at Haven, Somwarpet, in evening light" />
-            <span>What we do</span>
-          </a>
-        </nav>
         <div className="hero-stage-copy">
-        <p className="eyebrow hero-rise">Clear-title land, held with care</p>
-        <h1>
-          <span className="hero-line">Find land.</span>
-          <span className="hero-line hero-line-gold">Unlock value.</span>
-          <span className="hero-line">Build the future.</span>
-        </h1>
-        <p className="lede hero-rise">
-          Farmland, orchards, and quiet holdings across the Ghats and the Deccan. We walk the bounds, write the file,
-          and stay through the first year.
-        </p>
-        <div className="hero-actions hero-rise">
-          <Link to="/listings" className="btn btn-solid">
-            Explore listings
-          </Link>
-          <Link to="/visit" className="btn btn-ghost">
-            Book a site visit
-          </Link>
+          <p className="eyebrow hero-rise">Clear-title land, held with care</p>
+          <h1>
+            <span className="hero-line">Find land.</span>
+            <span className="hero-line hero-line-gold">Unlock value.</span>
+            <span className="hero-line">Build the future.</span>
+          </h1>
+          <p className="lede hero-rise">
+            Farmland, orchards, and quiet holdings across the Ghats and the Deccan. We walk the bounds, write the file,
+            and stay through the first year.
+          </p>
+          <div className="hero-actions hero-rise">
+            <Link to="/listings" className="btn btn-solid">
+              Explore listings
+            </Link>
+            <Link to="/visit" className="btn btn-ghost">
+              Book a site visit
+            </Link>
+          </div>
         </div>
+        <div className="hero-carousel-ui">
+          <a
+            className="hero-carousel-label"
+            href={active.href}
+            onClick={(event) => {
+              event.preventDefault()
+              document.querySelector(active.href)?.scrollIntoView({ behavior: "smooth", block: "start" })
+            }}
+          >
+            {active.label}
+          </a>
+          <div className="hero-carousel-nav">
+            <button type="button" aria-label="Previous image" onClick={() => goTo(index - 1)}>
+              ‹
+            </button>
+            <div className="hero-carousel-dots" role="tablist" aria-label="Carousel slides">
+              {heroSlides.map((slide, slideIndex) => (
+                <button
+                  key={slide.label}
+                  type="button"
+                  role="tab"
+                  className={slideIndex === index % count ? "is-on" : ""}
+                  aria-label={slide.label}
+                  aria-selected={slideIndex === index % count}
+                  onClick={() => setIndex(slideIndex)}
+                />
+              ))}
+            </div>
+            <button
+              type="button"
+              aria-label="Next image"
+              onClick={() => setIndex((current) => (current >= count ? current : current + 1))}
+            >
+              ›
+            </button>
+          </div>
         </div>
       </div>
     </section>
@@ -212,13 +294,14 @@ function Tokenisation() {
   const models = [
     {
       title: "Agriculture Land",
-      lede: "Institutional Monetization on Sovereign Land.",
-      pill: "Agriculture Land",
+      // lede: "Institutional Monetization on Sovereign Land.",
+      // pill: "Agriculture Land",
       image: "/images/token-agriculture.jpg",
-      alt: "Hydroponic greenhouses beside a lettuce greenhouse interior",
+      alt: "Indoor hydroponic lettuce farm under grow lights",
       icon: "leaf",
       kicker: "Agritech Asset",
       asset: "Hydroponic Park",
+      payout: "Monthly Escrow",
     },
     {
       title: "Highway Land Model",
@@ -252,7 +335,7 @@ function Tokenisation() {
   return (
     <section className="section token-band" id="tokenisation">
       <div className="wrap">
-        <h2 className="services-heading">Tokenisation</h2>
+       <h2 className="services-heading">Land revenue model</h2> 
         <div className="token-grid">
           {models.map((item) => (
             <article key={item.title} className="token-card">
@@ -306,201 +389,94 @@ function TokenIcon({ name }) {
   )
 }
 
-function ParcelBoard() {
-  const names = ["All regions", ...new Set(listings.map((item) => item.region))]
-  const [region, setRegion] = useState("All regions")
-  const [activeId, setActiveId] = useState(listings[3].id)
-  const shown = region === "All regions" ? listings : listings.filter((item) => item.region === region)
-  const active = shown.find((item) => item.id === activeId) ?? shown[0]
-
-  useEffect(() => {
-    const showHydroponics = () => {
-      if (window.location.hash !== "#hydroponics") return
-      setRegion("All regions")
-      setActiveId(listings[3].id)
-    }
-    window.addEventListener("hashchange", showHydroponics)
-    return () => window.removeEventListener("hashchange", showHydroponics)
-  }, [])
-  const acres = shown.reduce((sum, item) => sum + item.acres, 0)
-  const acresLabel = Number.isInteger(acres) ? String(acres) : String(Math.round(acres * 10) / 10)
+function RwaOffer() {
+  const [tokens, setTokens] = useState(1)
+  const monthly = 10000 * tokens
+  const monthlyLabel = monthly.toLocaleString("en-IN")
 
   return (
-    <section className="section section-tight dash-section" id="hydroponics" aria-label="Open parcels">
-      <div className="wrap dash">
-        <div className="dash-stats">
-          <p>
-            <strong>{shown.length}</strong>
-            <span>Open parcels</span>
-          </p>
-          <p>
-            <strong>{acresLabel}</strong>
-            <span>acres</span>
-          </p>
-          <p>
-            <strong>{active.price}</strong>
-            <span>{active.unit}</span>
-          </p>
-          <p>
-            <strong>{active.titleStatus}</strong>
-            <span>{active.region}</span>
-          </p>
-        </div>
-        <div className="chip-row dash-chips" role="group" aria-label="Region">
-          {names.map((name) => (
-            <button
-              key={name}
-              type="button"
-              className={name === region ? "chip is-on" : "chip"}
-              aria-pressed={name === region}
-              onClick={() => setRegion(name)}
-            >
-              {name}
-            </button>
-          ))}
-        </div>
-        <div className="dash-grid">
-          <ul className="dash-list">
-            {shown.map((item) => (
-              <li key={item.id}>
-                <button
-                  type="button"
-                  className={item.id === active.id ? "is-on" : ""}
-                  aria-pressed={item.id === active.id}
-                  onClick={() => setActiveId(item.id)}
-                >
-                  <img src={item.image} alt="" />
-                  <span>
-                    <strong>{item.title}</strong>
-                    <small>
-                      {item.acres} acres · {item.type}
-                    </small>
-                  </span>
-                  <em>{item.price}</em>
-                </button>
-              </li>
-            ))}
-          </ul>
-          <article className="dash-preview" aria-live="polite">
-            <img src={active.image} alt={`${active.title}, ${active.place}`} />
-            <div>
-              <p className="card-kicker">
-                <span className="dot" />
-                {active.region}
-                <span className="kicker-sep">·</span>
-                {active.titleStatus}
-              </p>
-              <h2>{active.title}</h2>
-              <p className="dash-place">{active.place}</p>
-              <p>{active.summary}</p>
-              <p className="dash-price">
-                <strong>{active.price}</strong>
-                <span>{active.unit}</span>
-              </p>
-              <Link to={`/listings/${active.id}`} className="btn btn-solid btn-sm">
-                View details
-              </Link>
-            </div>
-          </article>
-        </div>
-      </div>
-    </section>
-  )
-}
-
-function SearchPanel() {
-  const navigate = useNavigate()
-
-  function onSubmit(event) {
-    event.preventDefault()
-    const data = new FormData(event.currentTarget)
-    const params = new URLSearchParams()
-    for (const [key, value] of data.entries()) {
-      if (String(value).trim()) params.set(key, String(value))
-    }
-    navigate(`/listings?${params.toString()}`)
-  }
-
-  return (
-    <section className="section section-tight" id="search">
+    <section className="section rwa-band" id="rwa-offer">
       <div className="wrap">
-        <form className="search-card" onSubmit={onSubmit}>
-          <label className="search-wide">
-            Search
-            <input name="q" placeholder="Region, crop, or place" />
-          </label>
-          <div className="search-row">
-            <label>
-              Region
-              <select name="region" defaultValue="">
-                <option value="">All regions</option>
-                {regionNames.map((name) => (
-                  <option key={name}>{name}</option>
-                ))}
-              </select>
-            </label>
-            <label>
-              Land type
-              <select name="type" defaultValue="">
-                <option value="">All types</option>
-                {landTypes.map((name) => (
-                  <option key={name}>{name}</option>
-                ))}
-              </select>
-            </label>
+      <h2 className="services-heading">TOKENISATION</h2>
+        <article className="rwa-card">
+          <div className="rwa-head">
+            <h2>Commercial RWA Tokenisation</h2>
+            <span className="rwa-grade">Grade-A Asset · 100 Tokens</span>
           </div>
-          <label>
-            Size
-            <select name="size" defaultValue="">
-              <option value="">Any size</option>
-              <option value="small">Under 8 acres</option>
-              <option value="mid">8 to 15 acres</option>
-              <option value="large">Over 15 acres</option>
-            </select>
-          </label>
-          <button type="submit" className="btn btn-solid btn-block">
-            Search listings
-          </button>
-          <div className="chip-row">
-            {["Farmland", "Orchard", "Water", "Coorg", "Clear title"].map((chip) => (
-              <Link key={chip} to={`/listings?q=${encodeURIComponent(chip)}`} className="chip">
-                {chip}
-              </Link>
-            ))}
-          </div>
-        </form>
-      </div>
-    </section>
-  )
-}
-
-function FeaturedProject() {
-  return (
-    <section className="section" id="project">
-      <div className="wrap">
-        <SectionHead
-          kicker={project.eyebrow}
-          title="A hall under the canopy."
-          action={<Link to="/projects">See projects</Link>}
-        />
-        <p className="section-intro">{project.text}</p>
-        <article className="feature-frame">
-          <img src={project.image} alt="Timber pavilion at Haven, Somwarpet, in evening light" />
-          <div className="feature-copy">
-            <p className="media-tag">{project.place}</p>
-            <h3>{project.title}</h3>
-            <p>Built on the clearing that was already there. The spring still feeds the tank above the hall.</p>
-            <dl>
-              {project.stats.map((stat) => (
-                <div key={stat.label}>
-                  <dt>{stat.label}</dt>
-                  <dd>{stat.value}</dd>
+          <p className="rwa-lede">
+            Fractional Institutional Asset Monetization & Monthly Rental Yield Distribution on Sovereign Land.
+          </p>
+          <div className="rwa-body">
+            <figure className="rwa-photo">
+              <img src="/images/kharadi-it-corridor.jpg" alt="Prime commercial suite in Kharadi IT Corridor, Pune" />
+              <span className="rwa-backed">RWA Backed</span>
+              <figcaption>
+                <span>Prime commercial suite · 1st floor</span>
+                <strong>Kharadi IT Corridor, Pune</strong>
+                <em>10,000 Sq. Ft. Grade-A Tech Park Suite (New Building)</em>
+              </figcaption>
+            </figure>
+            <div className="rwa-side">
+              <div className="rwa-econ">
+                <p className="rwa-econ-title">
+                  100-Token Unit Economics
+                  <small>1 Token = 100 Sq. Ft.</small>
+                </p>
+                <dl className="rwa-metrics">
+                  <div>
+                    <dt>Price per token</dt>
+                    <dd>₹18,00,000</dd>
+                  </div>
+                  <div>
+                    <dt>Monthly rental payout</dt>
+                    <dd>
+                      ₹10,000 <span>/ mo</span>
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Annual cash return</dt>
+                    <dd>
+                      ₹1,20,000 <span>/ yr</span>
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Projected target IRR</dt>
+                    <dd>
+                      14% – 17% <span>IRR</span>
+                    </dd>
+                  </div>
+                </dl>
+                <div className="rwa-alloc">
+                  <p>Select allocation:</p>
+                  <div className="rwa-pills" role="group" aria-label="Token allocation">
+                    {[1, 5, 10].map((count) => (
+                      <button
+                        key={count}
+                        type="button"
+                        className={tokens === count ? "is-on" : ""}
+                        aria-pressed={tokens === count}
+                        onClick={() => setTokens(count)}
+                      >
+                        {count} Token{count > 1 ? "s" : ""}
+                      </button>
+                    ))}
+                  </div>
+                  <p className="rwa-payout">
+                    Monthly payout: <strong>₹{monthlyLabel}/month</strong>
+                  </p>
                 </div>
-              ))}
-            </dl>
-            <Link to="/listings/haven-pavilion" className="btn btn-light btn-sm">
-              View the parcel
-            </Link>
+              </div>
+              <div className="rwa-actions">
+                <Link className="btn btn-solid" to="/visit">
+                  Invest in tokens
+                  <span aria-hidden="true"> →</span>
+                </Link>
+                <Link className="btn btn-line rwa-memo" to="/visit">
+                  Offering memorandum
+                  <span aria-hidden="true"> ↗</span>
+                </Link>
+              </div>
+            </div>
           </div>
         </article>
       </div>
@@ -508,262 +484,172 @@ function FeaturedProject() {
   )
 }
 
-function Reasons() {
-  return (
-    <section className="section" id="reasons">
-      <div className="wrap">
-        <SectionHead kicker="Why Bhoomi" title="The file is part of the land." />
-        <div className="tiles">
-          {reasons.map((item, index) => (
-            <article key={item.title} className="tile">
-              <span className="tile-icon">
-                <ReasonIcon index={index} />
-              </span>
-              <h3>{item.title}</h3>
-              <p>{item.text}</p>
-            </article>
-          ))}
-        </div>
-      </div>
-    </section>
-  )
-}
-
-function Gallery() {
-  return (
-    <section className="section" id="gallery">
-      <div className="wrap">
-        <SectionHead
-          kicker="Places"
-          title="Find the right land for the right reason."
-          action={<Link to="/regions">All regions</Link>}
-        />
-        <div className="gallery">
-          {regions.map((region) => (
-            <Link key={region.slug} to={`/listings?region=${encodeURIComponent(region.name)}`} className="gallery-card">
-              <img src={region.image} alt="" />
-              <span>
-                <strong>{region.name}</strong>
-                <small>{region.state}</small>
-              </span>
-            </Link>
-          ))}
-        </div>
-      </div>
-    </section>
-  )
-}
-
-function Record() {
-  return (
-    <section className="band-dark" id="record">
-      <div className="wrap record-grid">
-        <div>
-          <p className="eyebrow light">Ground record</p>
-          <h2>Every boundary, drawn before you buy.</h2>
-          <p className="lede light">
-            Survey lines, water, and the road in. We put them on one picture so a visit has a map, not a guess.
-          </p>
-          <div className="record-map">
-            <img src="/images/aerial.jpg" alt="Aerial farmland with parcel paths marked in green" />
-            <svg className="record-paths" viewBox="0 0 400 260" aria-hidden="true">
-              <path d="M30 190 C 90 150, 130 170, 180 100 S 270 40, 360 78" />
-              <path d="M24 210 C 110 196, 150 220, 230 150 S 320 130, 378 148" />
-              <path d="M70 70 C 120 90, 150 60, 210 88" />
-            </svg>
-            <p className="map-key">
-              <span /> Parcel edge
-              <span className="key-b" /> Water
-            </p>
-          </div>
-        </div>
-        <div className="record-side">
-          <div className="panel-light">
-            <InquiryForm intent="Ask for a ground record" />
-          </div>
-          <div className="checklist">
-            <h3>In every file</h3>
-            <ul>
-              {checks.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-            <Link to="/about#method" className="btn btn-line btn-block">
-              How the check is done
-            </Link>
-          </div>
-        </div>
-      </div>
-    </section>
-  )
-}
-
 function Process() {
-  return (
-    <section className="section" id="process">
-      <div className="wrap">
-        <SectionHead kicker="The path" title="From untouched land to a place you can keep." />
-        <figure className="process-photo">
-          <img src="/images/pavilion.jpg" alt="Timber pavilion at Haven, Somwarpet, in evening light" />
-        </figure>
-        <ol className="process">
-          {steps.map((step) => (
-            <li key={step.n}>
-              <span>{step.n}</span>
-              <h3>{step.title}</h3>
-              <p>{step.text}</p>
-            </li>
-          ))}
-        </ol>
-      </div>
-    </section>
-  )
-}
+  const [focus, setFocus] = useState("corridor")
 
-function Stories() {
   return (
-    <section className="section" id="stories">
+    <section className="section process-band" id="process">
       <div className="wrap">
-        <SectionHead
-          kicker="On the ground"
-          title="Land, transformed."
-          action={<Link to="/projects">View all</Link>}
-        />
-        <div className="cards-3">
-          {stories.map((story) => (
-            <article key={story.slug} className="story-card">
-              <img src={story.image} alt="" />
-              <div>
-                <p className="card-kicker">{story.place}</p>
-                <h3>{story.title}</h3>
-                <p>{story.excerpt}</p>
-              </div>
-            </article>
-          ))}
-        </div>
-      </div>
-    </section>
-  )
-}
-
-function Notes() {
-  return (
-    <section className="section section-tight">
-      <div className="wrap stack">
-        {fieldNotes.map((note) => (
-          <article key={note.slug} className="note-card">
-            <img src={note.image} alt="" />
-            <div>
-              <p className="card-kicker">{note.place}</p>
-              <h3>{note.title}</h3>
-              <p>{note.excerpt}</p>
-              <div className="chip-row">
-                {note.tags.map((tag) => (
-                  <span key={tag} className="chip">
-                    {tag}
-                  </span>
-                ))}
-              </div>
+        <h2 className="services-heading">Process</h2>
+        <article className="gis-card">
+          <p className="gis-kicker">Land Intelligence GIS</p>
+          <h3>See beyond the boundary.</h3>
+          <p className="gis-copy">
+            Explore land opportunities with advanced satellite mapping and intelligence layers. Get deep understanding of connectivity, zoning, utilities, and development potential.
+          </p>
+          <div className="gis-map">
+            <img src="/images/aerial.jpg" alt="Satellite view of a prime industrial corridor with GIS parcel overlays" />
+            <span className="gis-tag gis-tag-left">GIS Telemetry: Active</span>
+            <span className="gis-tag gis-tag-right">IND-400</span>
+            <span className="gis-map-label">GIS Map Interface</span>
+            <svg className="gis-plot" viewBox="0 0 800 360" aria-hidden="true">
+              <polygon
+                className={focus === "corridor" ? "is-on" : ""}
+                points="180,90 430,70 520,150 470,280 210,250"
+              />
+              <polygon
+                className={focus === "node" ? "is-on" : ""}
+                points="500,40 720,80 740,220 560,260"
+              />
+            </svg>
+            <div className="gis-bar">
+              <button type="button" className={focus === "corridor" ? "is-on" : ""} onClick={() => setFocus("corridor")}>
+                Prime Industrial Corridor
+              </button>
+              <button type="button" className="gis-analyze" onClick={() => setFocus("corridor")}>
+                Analyze
+              </button>
+              <button type="button" className={focus === "node" ? "is-on" : ""} onClick={() => setFocus("node")}>
+                NH-48 Logistics Node
+              </button>
             </div>
-            <Link to="/insights" className="text-link">
-              Read notes
-            </Link>
-          </article>
-        ))}
+          </div>
+          <ul className="gis-legend">
+            <li>
+              <i className="gis-dot gis-dot-green" /> Land Parcels
+            </li>
+            <li>
+              <i className="gis-dot gis-dot-gold" /> Major Roads
+            </li>
+            <li>
+              <i className="gis-dot gis-dot-blue" /> Upcoming Infra
+            </li>
+            <li>
+              <i className="gis-dot gis-dot-purple" /> Industrial Zone
+            </li>
+          </ul>
+        </article>
       </div>
     </section>
   )
 }
 
-function NavyNote() {
+function LandJourney() {
   return (
-    <section className="section">
+    <section className="section journey-band" id="journey">
       <div className="wrap">
-        <div className="navy-band">
-          <p className="eyebrow light">Field notes</p>
-          <h2>Know the land before you commit.</h2>
-          <p>Short writing from site days: water, shade, roads, and the sentences we will not soften.</p>
-          <Link to="/insights" className="btn btn-light">
-            Read the field notes
-          </Link>
-        </div>
+        <figure className="journey-photo">
+          <img
+            src={landJourney}
+            alt="One Platform. The Complete Land Journey. End-to-end 7-step real estate and land development lifecycle: Discover, Analyse, Verify, Acquire, Masterplan, Develop, and Create Value."
+          />
+        </figure>
       </div>
     </section>
   )
 }
 
-function Intelligence() {
+function Videos() {
   return (
-    <section className="section" id="intelligence">
+    <section className="section videos-band" id="videos">
       <div className="wrap">
-        <SectionHead kicker="In the file" title="Intelligence behind every acre." />
-        <div className="tiles">
-          {intelligence.map((item, index) => (
-            <article key={item.title} className="tile">
-              <span className="tile-icon">
-                <IntelIcon index={index} />
-              </span>
-              <h3>{item.title}</h3>
-              <p>{item.text}</p>
-            </article>
-          ))}
-        </div>
+        <h2 className="services-heading">Videos</h2>
+        <article className="videos-card">
+          <iframe
+            className="videos-frame"
+            title="Shekhar Gaikwad, IAS"
+            src="https://shekhargaikwad.blogspot.com/?m=1"
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+          />
+          <a
+            className="btn btn-solid videos-link"
+            href="https://shekhargaikwad.blogspot.com/?m=1"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Open blog
+            <span aria-hidden="true"> ↗</span>
+          </a>
+        </article>
       </div>
     </section>
   )
 }
 
-function InsightList() {
+function Landowner() {
   return (
-    <section className="section" id="insights">
+    <section className="section landowner-band" id="landowner">
       <div className="wrap">
-        <SectionHead
-          kicker="Journal"
-          title="Land intelligence, written plainly."
-          action={<Link to="/insights">All notes</Link>}
-        />
-        <div className="insight-list">
-          {insights.map((item) => (
-            <Link key={item.slug} to={`/insights/${item.slug}`} className="insight-row">
-              <img src={item.image} alt="" />
-              <span>
-                <small>
-                  {item.kicker} · {item.date}
-                </small>
-                <strong>{item.title}</strong>
-                <em>{item.excerpt}</em>
-              </span>
-            </Link>
-          ))}
-        </div>
+        <article className="landowner-card">
+          <p className="landowner-kicker">For landowners</p>
+          <h2>Own land?</h2>
+          <p className="landowner-copy">
+            Unlock its true development potential. Whether selling, seeking joint development, or strategic institutional partnerships.
+          </p>
+          <Link className="btn landowner-cta" to="/visit">
+            Submit your land
+            <span aria-hidden="true"> →</span>
+          </Link>
+        </article>
       </div>
     </section>
   )
 }
 
-function Close() {
+function Investors() {
   return (
-    <section className="band-dark close-cta" id="visit">
-      <div className="wrap narrow">
-        <p className="eyebrow light">Start with the ground</p>
-        <h2>Find land. Then stay with it.</h2>
-        <p>A short visit, a clear file, and someone who still answers after the sale.</p>
-        <div className="cta-row">
-          <Link to="/listings" className="btn btn-solid">
-            Explore listings
+    <section className="section investor-band" id="investors">
+      <div className="wrap">
+        <article className="investor-card">
+          <p className="investor-kicker">For developers & investors</p>
+          <h2>Looking for land?</h2>
+          <p className="investor-copy">
+            Discover curated and verified strategic land aligned with your development objectives across prime growth corridors.
+          </p>
+          <Link className="btn investor-cta" to="/listings">
+            Find strategic land
+            <span aria-hidden="true"> →</span>
           </Link>
-          <Link to="/visit" className="btn btn-light">
-            Book a visit
+        </article>
+      </div>
+    </section>
+  )
+}
+
+function BeginLand() {
+  return (
+    <section className="begin-band" id="begin">
+      <div className="begin-inner">
+        <h2>Every great development begins with land.</h2>
+        <p>
+          Whether you are looking to acquire, invest, develop or unlock the potential of land, Bhumi Global brings the intelligence and expertise together.
+        </p>
+        <div className="begin-actions">
+          <Link className="btn begin-find" to="/listings">
+            Find land
+          </Link>
+          <Link className="btn begin-submit" to="/visit">
+            Submit land
+          </Link>
+          <Link className="btn begin-line" to="/projects">
+            Develop land
+          </Link>
+          <Link className="btn begin-line" to="/visit">
+            Partner with us
           </Link>
         </div>
-        <div className="cta-row">
-          <Link to="/regions" className="btn btn-line">
-            See open regions
-          </Link>
-          <Link to="/about" className="btn btn-line">
-            How we work
-          </Link>
-        </div>
+        <p className="begin-mark">Land · Value · Prosperity</p>
       </div>
     </section>
   )
