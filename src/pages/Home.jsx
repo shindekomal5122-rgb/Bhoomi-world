@@ -23,7 +23,7 @@ export default function Home() {
 
   function onPageClick(event) {
     const img = event.target.closest("img")
-    if (!img || img.closest(".hero-stage") || img.closest(".home-lightbox") || img.closest(".rwa-photo") || img.closest(".journey-photo") || img.closest(".gis-map")) return
+    if (!img || img.closest(".hero-stage") || img.closest(".home-lightbox") || img.closest(".rwa-photo") || img.closest(".journey-photo") || img.closest(".gis-map") || img.closest(".market-cover")) return
     event.preventDefault()
     event.stopPropagation()
     setShot({ src: img.currentSrc || img.src, alt: img.alt || "" })
@@ -37,7 +37,7 @@ export default function Home() {
       <Tokenisation />
       <RwaOffer />
       <Process />
-      <LandJourney />
+      {/* <LandJourney /> */}
       <Videos />
       <Landowner />
       <Investors />
@@ -199,28 +199,86 @@ function Hero() {
 
 function Marketplace() {
   const markets = [
-    { title: "Residential", image: "/images/market-residential.jpg", alt: "Residential houses on a quiet plot" },
-    { title: "Commercial", image: "/images/market-commercial.jpg", alt: "A commercial building with a glass front" },
-    { title: "Industrial", image: "/images/market-industrial.jpg", alt: "An industrial park with warehouses" },
-    { title: "Agricultural", image: "/images/market-agricultural.jpg", alt: "Green agricultural farmland" },
-    { title: "Logistics", image: "/images/market-logistics.jpg", alt: "A logistics warehouse and yard" },
-    { title: "Renewable energy", image: "/images/market-renewable.jpg", alt: "A solar farm on open land" },
-    { title: "Hospitality", image: "/images/market-hospitality.jpg", alt: "A hospitality retreat among trees" },
-    { title: "Large parcel", image: "/images/market-large-parcel.jpg", alt: "A large open land parcel seen from above" },
+    { title: "Residential", line: "Homes & plots", image: "/images/market-residential.jpg", alt: "Residential houses on a quiet plot", note: "Homes", status: "Plots" },
+    { title: "Commercial", line: "Street frontage", image: "/images/market-commercial.jpg", alt: "A commercial building with a glass front", note: "Street", status: "Frontage" },
+    // { title: "Industrial", line: "Parks & sheds", image: "/images/market-industrial.jpg", alt: "An industrial park with warehouses", note: "Parks", status: "Sheds" },
+    { title: "Agricultural", line: "Farmland & orchards", image: "/images/market-agricultural.jpg", alt: "Green agricultural farmland", note: "Farmland", status: "Yield" },
+    { title: "Logistics", line: "Yards & warehousing", image: "/images/market-logistics.jpg", alt: "A logistics warehouse and yard", note: "Yards", status: "Hubs" },
+    { title: "Renewable energy", line: "Solar & wind land", image: "/images/market-renewable.jpg", alt: "A solar farm on open land", note: "Solar", status: "Wind" },
+    { title: "Hospitality", line: "Retreats & stays", image: "/images/market-hospitality.jpg", alt: "A hospitality retreat among trees", note: "Retreats", status: "Stays" },
+    // { title: "Large parcel", line: "Open holdings", image: "/images/market-large-parcel.jpg", alt: "A large open land parcel seen from above", note: "Holdings", status: "Scale" },
   ]
+  const count = markets.length
+  const [index, setIndex] = useState(0)
+
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return undefined
+    const id = window.setInterval(() => setIndex((current) => (current + 1) % count), 4000)
+    return () => window.clearInterval(id)
+  }, [count])
+
+  function offsetOf(i) {
+    let offset = i - index
+    if (offset > Math.floor(count / 2)) offset -= count
+    if (offset < -Math.floor(count / 2)) offset += count
+    return offset
+  }
 
   return (
-    <section className="section marketplace" id="marketplace">
+    <section className="market-cover" id="marketplace">
       <div className="wrap">
         <SectionHead kicker="Land uses" title="About the marketplace" />
-        <div className="market-grid">
-          {markets.map((item) => (
-            <article key={item.title} className="market-box">
-              <img src={item.image} alt={item.alt} />
-              <h3>{item.title}</h3>
+      </div>
+      <div className="market-cover-stage" aria-roledescription="carousel" aria-label="Land uses">
+        {markets.map((item, i) => {
+          const offset = offsetOf(i)
+          const abs = Math.abs(offset)
+          const scale = offset === 0 ? 1 : abs === 1 ? 0.9 : 0.78
+          return (
+            <article
+              key={item.title}
+              className={offset === 0 ? "market-slide is-on" : "market-slide"}
+              style={{
+                transform: `translateX(${offset * 98}%) scale(${scale})`,
+                zIndex: 8 - abs,
+                opacity: abs > 2 ? 0 : abs === 2 ? 0.42 : 1,
+                pointerEvents: abs > 2 ? "none" : "auto",
+              }}
+              onClick={() => setIndex(i)}
+            >
+              <img src={item.image} alt={offset === 0 ? item.alt : ""} />
+              <span className="market-slide-tag">{item.title}</span>
+              <div className="market-slide-copy">
+                <h3>{item.line}</h3>
+                {offset === 0 && (
+                  <dl>
+                    <div>
+                      <dt>Land use</dt>
+                      <dd>{item.note}</dd>
+                    </div>
+                    <div>
+                      <dt>Open</dt>
+                      <dd>{item.status}</dd>
+                    </div>
+                  </dl>
+                )}
+              </div>
             </article>
-          ))}
-        </div>
+          )
+        })}
+      </div>
+      <div className="market-cover-dots" role="tablist" aria-label="Marketplace slides">
+        {markets.map((item, i) => (
+          <button
+            key={item.title}
+            type="button"
+            role="tab"
+            className={i === index ? "is-on" : ""}
+            aria-label={item.title}
+            aria-selected={i === index}
+            onClick={() => setIndex(i)}
+          />
+        ))}
       </div>
     </section>
   )
@@ -522,20 +580,20 @@ function Process() {
   )
 }
 
-function LandJourney() {
-  return (
-    <section className="section journey-band" id="journey">
-      <div className="wrap">
-        <figure className="journey-photo">
-          <img
-            src={landJourney}
-            alt="One Platform. The Complete Land Journey. End-to-end 7-step real estate and land development lifecycle: Discover, Analyse, Verify, Acquire, Masterplan, Develop, and Create Value."
-          />
-        </figure>
-      </div>
-    </section>
-  )
-}
+// function LandJourney() {
+//   return (
+//     <section className="section journey-band" id="journey">
+//       <div className="wrap">
+//         <figure className="journey-photo">
+//           <img
+//             src={landJourney}
+//             alt="One Platform. The Complete Land Journey. End-to-end 7-step real estate and land development lifecycle: Discover, Analyse, Verify, Acquire, Masterplan, Develop, and Create Value."
+//           />
+//         </figure>
+//       </div>
+//     </section>
+//   )
+// }
 
 function Videos() {
   return (
