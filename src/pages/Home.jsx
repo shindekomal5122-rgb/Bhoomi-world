@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import useTitle from "../useTitle"
 import landJourney from "../assets/land-journey.jpg"
+import gisMap from "../assets/gis-map.jpg"
 
 export default function Home() {
   useTitle("")
@@ -41,6 +42,7 @@ export default function Home() {
       <Landowner />
       <Investors />
       <BeginLand />
+      <Progression />
       {shot && (
         <div
           className="home-lightbox"
@@ -61,7 +63,7 @@ const heroSlides = [
     href: "#tokenisation",
     src: "/images/token-highway.jpg",
     alt: "BhumiGlobal tokenisation platform. Land, value, prosperity. Physical land is verified, digitised, issued as a land token, and opened for global access.",
-    label: "Tokenisation",
+    label: "EV Charging Station HIGHWAY LAND MODEL",
   },
   {
     href: "#tokenisation",
@@ -400,12 +402,12 @@ function RwaOffer() {
       <h2 className="services-heading">TOKENISATION</h2>
         <article className="rwa-card">
           <div className="rwa-head">
-            <h2>Commercial RWA Tokenisation</h2>
-            <span className="rwa-grade">Grade-A Asset · 100 Tokens</span>
+           
+            {/* <span className="rwa-grade">Grade-A Asset · 100 Tokens</span> */}
           </div>
-          <p className="rwa-lede">
+          {/* <p className="rwa-lede">
             Fractional Institutional Asset Monetization & Monthly Rental Yield Distribution on Sovereign Land.
-          </p>
+          </p> */}
           <div className="rwa-body">
             <figure className="rwa-photo">
               <img src="/images/kharadi-it-corridor.jpg" alt="Prime commercial suite in Kharadi IT Corridor, Pune" />
@@ -485,45 +487,21 @@ function RwaOffer() {
 }
 
 function Process() {
-  const [focus, setFocus] = useState("corridor")
-
   return (
     <section className="section process-band" id="process">
       <div className="wrap">
-        <h2 className="services-heading">Process</h2>
         <article className="gis-card">
           <p className="gis-kicker">Land Intelligence GIS</p>
           <h3>See beyond the boundary.</h3>
           <p className="gis-copy">
             Explore land opportunities with advanced satellite mapping and intelligence layers. Get deep understanding of connectivity, zoning, utilities, and development potential.
           </p>
-          <div className="gis-map">
-            <img src="/images/aerial.jpg" alt="Satellite view of a prime industrial corridor with GIS parcel overlays" />
-            <span className="gis-tag gis-tag-left">GIS Telemetry: Active</span>
-            <span className="gis-tag gis-tag-right">IND-400</span>
-            <span className="gis-map-label">GIS Map Interface</span>
-            <svg className="gis-plot" viewBox="0 0 800 360" aria-hidden="true">
-              <polygon
-                className={focus === "corridor" ? "is-on" : ""}
-                points="180,90 430,70 520,150 470,280 210,250"
-              />
-              <polygon
-                className={focus === "node" ? "is-on" : ""}
-                points="500,40 720,80 740,220 560,260"
-              />
-            </svg>
-            <div className="gis-bar">
-              <button type="button" className={focus === "corridor" ? "is-on" : ""} onClick={() => setFocus("corridor")}>
-                Prime Industrial Corridor
-              </button>
-              <button type="button" className="gis-analyze" onClick={() => setFocus("corridor")}>
-                Analyze
-              </button>
-              <button type="button" className={focus === "node" ? "is-on" : ""} onClick={() => setFocus("node")}>
-                NH-48 Logistics Node
-              </button>
-            </div>
-          </div>
+          <figure className="gis-map">
+            <img
+              src={gisMap}
+              alt="GIS map interface showing Prime Industrial Corridor, NH-48 logistics node, and IND-400 development parcel telemetry"
+            />
+          </figure>
           <ul className="gis-legend">
             <li>
               <i className="gis-dot gis-dot-green" /> Land Parcels
@@ -650,6 +628,68 @@ function BeginLand() {
           </Link>
         </div>
         <p className="begin-mark">Land · Value · Prosperity</p>
+      </div>
+    </section>
+  )
+}
+
+function Progression() {
+  const stages = [
+    {
+      n: "01",
+      title: "Land today",
+      image: "/images/ridge.jpg",
+      alt: "Open land with raw topography before development",
+      icon: "sprout",
+      kicker: "Stage 01",
+      asset: "Virgin topography",
+      copy: "Raw potential with unorganized title structures and virgin topography.",
+    },
+    {
+      n: "02",
+      title: "Intelligence",
+      image: "/images/aerial.jpg",
+      alt: "Aerial land view used for GIS planning",
+      icon: "bolt",
+      kicker: "Stage 02",
+      asset: "GIS & masterplanning",
+      copy: "GIS zoning overlays, risk evaluation, and optimized masterplanning.",
+    },
+    {
+      n: "03",
+      title: "Land tomorrow",
+      image: "/images/token-urban.jpg",
+      alt: "Developed urban land destination",
+      icon: "arena",
+      kicker: "Stage 03",
+      asset: "Townships & logistics",
+      copy: "Thriving townships, high-yield logistics centers, and lasting prosperity.",
+    },
+  ]
+
+  return (
+    <section className="section progress-band" id="progression">
+      <div className="wrap">
+        <p className="progress-kicker">Progression</p>
+        <h2 className="services-heading">From Untapped Land to Transformative Destinations.</h2>
+        <div className="token-grid progress-grid">
+          {stages.map((item) => (
+            <article key={item.n} className="token-card">
+              <h3>{item.title}</h3>
+              <p className="token-lede">{item.copy}</p>
+              <figure className="token-frame">
+                <img src={item.image} alt={item.alt} />
+                <span className="token-badge" aria-hidden="true">
+                  <TokenIcon name={item.icon} />
+                </span>
+                <figcaption>
+                  <span>{item.kicker}</span>
+                  <strong>{item.asset}</strong>
+                </figcaption>
+              </figure>
+            </article>
+          ))}
+        </div>
       </div>
     </section>
   )
