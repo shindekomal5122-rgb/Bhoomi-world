@@ -47,9 +47,14 @@ export default function Header() {
           ))}
         </nav>
         <div className="header-actions">
-          <Link to="/visit" className="btn btn-solid btn-sm visit-link">
-           Buy or Sell Land
-          </Link>
+          <div className="trade-btns">
+            <Link to="/buy" className="btn btn-solid btn-sm visit-link">
+              Buy
+            </Link>
+            <Link to="/sell" className="btn btn-ghost btn-sm visit-link">
+              Sell
+            </Link>
+          </div>
           <button type="button" className="icon-btn" onClick={toggle} aria-label={`Switch to ${theme === "light" ? "dark" : "light"} theme`}>
             {theme === "light" ? <MoonIcon /> : <SunIcon />}
           </button>
@@ -72,7 +77,13 @@ export default function Header() {
                 {link.label}
               </NavLink>
             ))}
-            <Link to="/visit" className="btn btn-solid" onClick={() => setMenuPath("")}>
+            <Link to="/buy" className="btn btn-solid" onClick={() => setMenuPath("")}>
+              Buy
+            </Link>
+            <Link to="/sell" className="btn btn-ghost" onClick={() => setMenuPath("")}>
+              Sell
+            </Link>
+            <Link to="/visit" className="btn btn-line" onClick={() => setMenuPath("")}>
               Book a visit
             </Link>
           </nav>

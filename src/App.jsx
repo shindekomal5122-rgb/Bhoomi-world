@@ -10,6 +10,13 @@ import Insights from "./pages/Insights"
 import InsightDetail from "./pages/InsightDetail"
 import About from "./pages/About"
 import Visit from "./pages/Visit"
+import DealerList from "./pages/DealerList"
+import DealerDetail from "./pages/DealerDetail"
+import PropertyDocuments from "./pages/PropertyDocuments"
+import LandBank from "./pages/LandBank"
+import Consultancy from "./pages/Consultancy"
+import BuyProperty from "./pages/BuyProperty"
+import SellProperty from "./pages/SellProperty"
 import NotFound from "./pages/NotFound"
 
 export default function App() {
@@ -27,6 +34,13 @@ export default function App() {
             <Route path="insights/:slug" element={<InsightDetail />} />
             <Route path="about" element={<About />} />
             <Route path="visit" element={<Visit />} />
+            <Route path="marketplace/:use/:dealerId" element={<DealerDetail />} />
+            <Route path="marketplace/:use" element={<DealerList />} />
+            <Route path="property-documents" element={<PropertyDocuments />} />
+            <Route path="land-bank" element={<LandBank />} />
+            <Route path="consultancy" element={<Consultancy />} />
+            <Route path="buy" element={<BuyProperty />} />
+            <Route path="sell" element={<SellProperty />} />
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>
