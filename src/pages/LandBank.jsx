@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom"
-import { landUseSlug, MARKET_LANDS } from "../dealers"
+import { landUseSlug, MARKET_LANDS } from "../parcels"
 import useTitle from "../useTitle"
 
 export default function LandBank() {
@@ -15,7 +15,7 @@ export default function LandBank() {
         </p>
         <p className="eyebrow">42,00+ acres</p>
         <h1>Land bank</h1>
-        <p className="lede">Every land use we hold on the book. Open a card for the dealers on that desk.</p>
+        <p className="lede">Every land use on the inventory. Open a card for parcels and owners on that bank.</p>
         <div className="land-bank-grid">
           {MARKET_LANDS.map((item) => (
             <Link key={item.title} className="market-box" to={`/marketplace/${landUseSlug(item.title)}`}>

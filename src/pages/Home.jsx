@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom"
 import useTitle from "../useTitle"
 import landJourney from "../assets/land-journey.jpg"
 import gisMap from "../assets/gis-map.jpg"
-import { landUseSlug, MARKET_LANDS } from "../dealers"
+import { landUseSlug, MARKET_LANDS } from "../parcels"
 
 export default function Home() {
   useTitle("")
@@ -295,7 +295,7 @@ function BhoomiServices() {
   const services = [
     { title: "Land Bank", text: "42,00+ Acres", icon: "bank", to: "/land-bank" },
     { title: "Consultancy", text: "Legal & Valuation", icon: "gem", to: "/consultancy" },
-    { title: "Property Documents", text: "7/12 & Title Registry", icon: "check", to: "/property-documents" },
+    { title: "Get online property documents", text: "7/12 & Title Registry", icon: "check", to: "/property-documents" },
     { title: "Bhumi Infra", text: "PPP Projects", icon: "crane" },
     { title: "International Corridors", text: "Cross-Border Land Solutions", icon: "globe" },
     { title: "Land Coin & Tokenisation", text: "RWA Asset-Backed Tokens", icon: "token", badge: "RWA" },
@@ -606,28 +606,42 @@ function Process() {
 // }
 
 function Videos() {
+  const clips = [
+    {
+      id: "bOtQGw1gx4o",
+      title: "Land film 1",
+      href: "https://youtu.be/bOtQGw1gx4o?si=OZj9ucYKxj7Ll1mO",
+    },
+    {
+      id: "OTPAOAXIU1o",
+      title: "Land film 2",
+      href: "https://youtu.be/OTPAOAXIU1o?si=ETjzfCmRd6Jy4Ers",
+    },
+  ]
+
   return (
     <section className="section videos-band" id="videos">
       <div className="wrap">
         <h2 className="services-heading">Videos</h2>
-        <article className="videos-card">
-          <iframe
-            className="videos-frame"
-            title="Shekhar Gaikwad, IAS"
-            src="https://shekhargaikwad.blogspot.com/?m=1"
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-          />
-          <a
-            className="btn btn-solid videos-link"
-            href="https://shekhargaikwad.blogspot.com/?m=1"
-            target="_blank"
-            rel="noreferrer"
-          >
-            Open blog
-            <span aria-hidden="true"> ↗</span>
-          </a>
-        </article>
+        <div className="videos-grid">
+          {clips.map((clip) => (
+            <article key={clip.id} className="videos-card">
+              <iframe
+                className="videos-frame"
+                title={clip.title}
+                src={`https://www.youtube.com/embed/${clip.id}`}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="strict-origin-when-cross-origin"
+              />
+              <a className="btn btn-solid videos-link" href={clip.href} target="_blank" rel="noreferrer">
+                Watch on YouTube
+                <span aria-hidden="true"> ↗</span>
+              </a>
+            </article>
+          ))}
+        </div>
       </div>
     </section>
   )
