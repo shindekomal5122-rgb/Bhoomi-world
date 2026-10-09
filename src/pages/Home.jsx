@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import useTitle from "../useTitle"
 import landJourney from "../assets/land-journey.jpg"
 import gisMap from "../assets/gis-map.jpg"
+import { landUseSlug, MARKET_LANDS } from "../parcels"
 
 export default function Home() {
   useTitle("")
@@ -198,24 +199,18 @@ function Hero() {
 }
 
 function Marketplace() {
-  const markets = [
-    { title: "Residential", line: "Homes & plots", image: "/images/market-residential.jpg", alt: "Residential houses on a quiet plot", note: "Homes", status: "Plots" },
-    { title: "Commercial", line: "Street frontage", image: "/images/market-commercial.jpg", alt: "A commercial building with a glass front", note: "Street", status: "Frontage" },
-    // { title: "Industrial", line: "Parks & sheds", image: "/images/market-industrial.jpg", alt: "An industrial park with warehouses", note: "Parks", status: "Sheds" },
-    { title: "Agricultural", line: "Farmland & orchards", image: "/images/market-agricultural.jpg", alt: "Green agricultural farmland", note: "Farmland", status: "Yield" },
-    { title: "Logistics", line: "Yards & warehousing", image: "/images/market-logistics.jpg", alt: "A logistics warehouse and yard", note: "Yards", status: "Hubs" },
-    { title: "Renewable energy", line: "Solar & wind land", image: "/images/market-renewable.jpg", alt: "A solar farm on open land", note: "Solar", status: "Wind" },
-    { title: "Hospitality", line: "Retreats & stays", image: "/images/market-hospitality.jpg", alt: "A hospitality retreat among trees", note: "Retreats", status: "Stays" },
-    // { title: "Large parcel", line: "Open holdings", image: "/images/market-large-parcel.jpg", alt: "A large open land parcel seen from above", note: "Holdings", status: "Scale" },
-  ]
+  const navigate = useNavigate()
+  const markets = MARKET_LANDS
   const count = markets.length
   const [index, setIndex] = useState(0)
+  const [held, setHeld] = useState(false)
 
   useEffect(() => {
+    if (held) return undefined
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return undefined
     const id = window.setInterval(() => setIndex((current) => (current + 1) % count), 4000)
     return () => window.clearInterval(id)
-  }, [count])
+  }, [count, held])
 
   function offsetOf(i) {
     let offset = i - index
@@ -224,10 +219,19 @@ function Marketplace() {
     return offset
   }
 
+  function onCardClick(item, i) {
+    if (i !== index) {
+      setIndex(i)
+      setHeld(true)
+      return
+    }
+    navigate(`/marketplace/${landUseSlug(item.title)}`)
+  }
+
   return (
     <section className="market-cover" id="marketplace">
       <div className="wrap">
-        <SectionHead kicker="Land uses" title="About the marketplace" />
+        <SectionHead kicker="Land uses" title="Land Bank" />
       </div>
       <div className="market-cover-stage" aria-roledescription="carousel" aria-label="Land uses">
         {markets.map((item, i) => {
@@ -244,7 +248,7 @@ function Marketplace() {
                 opacity: abs > 2 ? 0 : abs === 2 ? 0.42 : 1,
                 pointerEvents: abs > 2 ? "none" : "auto",
               }}
-              onClick={() => setIndex(i)}
+              onClick={() => onCardClick(item, i)}
             >
               <img src={item.image} alt={offset === 0 ? item.alt : ""} />
               <span className="market-slide-tag">{item.title}</span>
@@ -276,7 +280,10 @@ function Marketplace() {
             className={i === index ? "is-on" : ""}
             aria-label={item.title}
             aria-selected={i === index}
-            onClick={() => setIndex(i)}
+            onClick={() => {
+              setIndex(i)
+              setHeld(true)
+            }}
           />
         ))}
       </div>
@@ -286,9 +293,9 @@ function Marketplace() {
 
 function BhoomiServices() {
   const services = [
-    { title: "Land Bank", text: "42,00+ Acres", icon: "bank" },
-    { title: "Consultancy", text: "Legal & Valuation", icon: "gem" },
-    { title: "Property Documents", text: "7/12 & Title Registry", icon: "check" },
+    { title: "Land Bank", text: "42,00+ Acres", icon: "bank", to: "/land-bank" },
+    { title: "Consultancy", text: "Legal & Valuation", icon: "gem", to: "/consultancy" },
+    { title: "Get online property documents", text: "7/12 & Title Registry", icon: "check", to: "/property-documents" },
     { title: "Bhumi Infra", text: "PPP Projects", icon: "crane" },
     { title: "International Corridors", text: "Cross-Border Land Solutions", icon: "globe" },
     { title: "Land Coin & Tokenisation", text: "RWA Asset-Backed Tokens", icon: "token", badge: "RWA" },
@@ -299,8 +306,10 @@ function BhoomiServices() {
       <div className="wrap">
         <h2 className="services-heading">Bhoomi Services</h2>
         <div className="services-grid">
-          {services.map((item) => (
-            <article key={item.title} className="service-card">
+          {services.map((item) => {
+            const Card = item.to ? Link : "article"
+            return (
+            <Card key={item.title} className="service-card" {...(item.to ? { to: item.to } : {})}>
               <div className="service-top">
                 <span className={`service-icon${item.badge ? " is-solid" : ""}`} aria-hidden="true">
                   <ServiceIcon name={item.icon} />
@@ -309,8 +318,9 @@ function BhoomiServices() {
               </div>
               <h3>{item.title}</h3>
               <p>{item.text}</p>
-            </article>
-          ))}
+            </Card>
+            )
+          })}
         </div>
       </div>
     </section>
@@ -596,28 +606,42 @@ function Process() {
 // }
 
 function Videos() {
+  const clips = [
+    {
+      id: "bOtQGw1gx4o",
+      title: "Land film 1",
+      href: "https://youtu.be/bOtQGw1gx4o?si=OZj9ucYKxj7Ll1mO",
+    },
+    {
+      id: "OTPAOAXIU1o",
+      title: "Land film 2",
+      href: "https://youtu.be/OTPAOAXIU1o?si=ETjzfCmRd6Jy4Ers",
+    },
+  ]
+
   return (
     <section className="section videos-band" id="videos">
       <div className="wrap">
         <h2 className="services-heading">Videos</h2>
-        <article className="videos-card">
-          <iframe
-            className="videos-frame"
-            title="Shekhar Gaikwad, IAS"
-            src="https://shekhargaikwad.blogspot.com/?m=1"
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-          />
-          <a
-            className="btn btn-solid videos-link"
-            href="https://shekhargaikwad.blogspot.com/?m=1"
-            target="_blank"
-            rel="noreferrer"
-          >
-            Open blog
-            <span aria-hidden="true"> ↗</span>
-          </a>
-        </article>
+        <div className="videos-grid">
+          {clips.map((clip) => (
+            <article key={clip.id} className="videos-card">
+              <iframe
+                className="videos-frame"
+                title={clip.title}
+                src={`https://www.youtube.com/embed/${clip.id}`}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="strict-origin-when-cross-origin"
+              />
+              <a className="btn btn-solid videos-link" href={clip.href} target="_blank" rel="noreferrer">
+                Watch on YouTube
+                <span aria-hidden="true"> ↗</span>
+              </a>
+            </article>
+          ))}
+        </div>
       </div>
     </section>
   )
