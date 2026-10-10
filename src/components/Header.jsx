@@ -48,12 +48,18 @@ export default function Header() {
         </nav>
         <div className="header-actions">
           <div className="trade-btns">
-            <Link to="/buy" className="btn btn-solid btn-sm visit-link">
+            <NavLink
+              to="/buy"
+              className={({ isActive }) => `btn btn-sm visit-link ${isActive ? "btn-solid" : "btn-ghost"}`}
+            >
               Buy
-            </Link>
-            <Link to="/sell" className="btn btn-ghost btn-sm visit-link">
+            </NavLink>
+            <NavLink
+              to="/sell"
+              className={({ isActive }) => `btn btn-sm visit-link ${isActive ? "btn-solid" : "btn-ghost"}`}
+            >
               Sell
-            </Link>
+            </NavLink>
           </div>
           <button type="button" className="icon-btn" onClick={toggle} aria-label={`Switch to ${theme === "light" ? "dark" : "light"} theme`}>
             {theme === "light" ? <MoonIcon /> : <SunIcon />}
@@ -77,12 +83,20 @@ export default function Header() {
                 {link.label}
               </NavLink>
             ))}
-            <Link to="/buy" className="btn btn-solid" onClick={() => setMenuPath("")}>
+            <NavLink
+              to="/buy"
+              className={({ isActive }) => `btn ${isActive ? "btn-solid" : "btn-ghost"}`}
+              onClick={() => setMenuPath("")}
+            >
               Buy
-            </Link>
-            <Link to="/sell" className="btn btn-ghost" onClick={() => setMenuPath("")}>
+            </NavLink>
+            <NavLink
+              to="/sell"
+              className={({ isActive }) => `btn ${isActive ? "btn-solid" : "btn-ghost"}`}
+              onClick={() => setMenuPath("")}
+            >
               Sell
-            </Link>
+            </NavLink>
             <Link to="/visit" className="btn btn-line" onClick={() => setMenuPath("")}>
               Book a visit
             </Link>
