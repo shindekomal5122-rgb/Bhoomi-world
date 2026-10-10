@@ -59,29 +59,6 @@ export default function Layout() {
     }
   }, [pathname, hash])
 
-  useEffect(() => {
-    const root = document.getElementById("main")
-    if (!root) return undefined
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return undefined
-    const nodes = root.querySelectorAll("section, .listing-card, .story-card, .tile, .insight-row")
-    const seen = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (!entry.isIntersecting) return
-          entry.target.classList.add("in")
-          seen.unobserve(entry.target)
-        })
-      },
-      { threshold: 0.14, rootMargin: "0px 0px -6% 0px" },
-    )
-    nodes.forEach((node) => {
-      if (node.classList.contains("hero-stage")) return
-      node.classList.add("reveal")
-      seen.observe(node)
-    })
-    return () => seen.disconnect()
-  }, [pathname])
-
   return (
     <>
       <a className="skip" href="#main">

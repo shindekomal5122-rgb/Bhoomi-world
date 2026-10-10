@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react"
 import { Link } from "react-router-dom"
+import SatbaraForm from "../components/SatbaraForm"
 import useTitle from "../useTitle"
 
 const TABS = [
@@ -40,7 +41,7 @@ const DOCUMENTS = [
 
 const TAB_NOTES = {
   all: "Twenty-five papers we keep on the file for land, plots, and built property.",
-  "712": "Village record of rights — owner, survey number, crop, and tenure on the 7/12 extract.",
+  "712": "Ask the IGR desk for a digitally signed 7/12. District, taluka, village, and survey number are enough to open the file.",
   "8a": "Mutation and ferfar papers that move the name on the 8/A after a sale or inheritance.",
   sale: "Agreements and deeds that pass title — sale deed, ATS, assignment, and related instruments.",
   index2: "Sub-registrar Index 2, encumbrance, mother deed, and the search that sits on the chain of title.",
@@ -80,14 +81,18 @@ export default function PropertyDocuments() {
           ))}
         </div>
         <p className="lede">{TAB_NOTES[tab]}</p>
-        <ol className="docs-list">
-          {papers.map((item, i) => (
-            <li key={item.name} className="docs-item">
-              <span className="docs-num">{String(i + 1).padStart(2, "0")}</span>
-              <span className="docs-name">{item.name}</span>
-            </li>
-          ))}
-        </ol>
+        {tab === "712" ? (
+          <SatbaraForm />
+        ) : (
+          <ol className="docs-list">
+            {papers.map((item, i) => (
+              <li key={item.name} className="docs-item">
+                <span className="docs-num">{String(i + 1).padStart(2, "0")}</span>
+                <span className="docs-name">{item.name}</span>
+              </li>
+            ))}
+          </ol>
+        )}
       </div>
     </section>
   )
